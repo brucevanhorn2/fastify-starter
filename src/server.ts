@@ -3,10 +3,8 @@ import helloRoutes from './routes/hello.route';
 
 const fastify = Fastify({ logger: true });
 
-// Register Routes
 fastify.register(helloRoutes);
 
-// Start Server
 const start = async () => {
   try {
     await fastify.listen({ port: 3000, host: '0.0.0.0' });
