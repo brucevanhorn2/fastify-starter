@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-const packageDotJSONContents = require("../package.json");
+const packageDotJSONContents = require("../../package.json");
 
 export const areYouThereController = async (req: FastifyRequest, reply: FastifyReply) => {
   return reply.send({ 

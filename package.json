@@ -19,6 +19,7 @@
     "@fastify/autoload": "^6.1.0",
     "@fastify/cors": "^10.0.2",
     "@fastify/env": "^5.0.2",
+    "@types/mongoose": "^5.11.96",
     "fastify": "^5.2.1",
     "mongoose": "^8.10.0"
   },
