@@ -21,7 +21,6 @@
     "@fastify/env": "^5.0.2",
     "@types/mongoose": "^5.11.96",
     "fastify": "^5.2.1",
-    "fastify-sequelize": "^1.0.4",
     "mongoose": "^8.10.0",
     "pg": "^8.13.1",
     "pg-hstore": "^2.3.4",

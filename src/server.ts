@@ -57,17 +57,26 @@ fastify.register(areYouThereRoutes);
 fastify.register(userRoutes);
 
 // After the show starts
-fastify.after(() => {
+fastify.after(async () => {
   // Ensure Sequelize is available
   if (!fastify.sequelize) {
-    throw new Error("Sequelize instance is missing!");
+    throw new Error("❌ Sequelize instance is missing in fastify!");
   }
+
+  console.log("✅ Sequelize instance available, initializing models...");
+
+  // 🔥 NEW: Log the entire `sequelize` instance to confirm structure
+  console.log("🔥 Sequelize Instance Details:", fastify.sequelize);
+
+  // 🔥 NEW: Log whether `queryGenerator` is available on `fastify.sequelize`
+  console.log("🔥🔥🔥 Checking queryGenerator on fastify.sequelize:", (fastify.sequelize as any).QueryGenerator);
+
 
   // Initialize models
   initClientModel(fastify.sequelize);
 
   // Sync database (create tables if they don't exist)
-  fastify.sequelize.sync();
+  await fastify.sequelize.sync();
 });
 
 

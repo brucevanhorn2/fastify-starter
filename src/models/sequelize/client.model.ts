@@ -11,6 +11,13 @@ export default class Client extends Model {
 }
 
 export const initClientModel = (sequelize: Sequelize) => {
+  if (!sequelize) {
+    throw new Error("❌ Sequelize instance is undefined in initClientModel!");
+  }
+
+  console.log("✅ Initializing Client model. Sequelize dialect:", sequelize.getDialect());
+  console.log("✅ Checking queryGenerator:", (sequelize as any).queryGenerator);
+
   Client.init(
     {
       id: {

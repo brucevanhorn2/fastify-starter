@@ -19,3 +19,8 @@ docker run -d `
   -v D:\docker_volumes\pgsql:/var/lib/postgresql/data `
   postgres:latest
 ```
+
+## Running it
+```bash
+npx ts-node src/server.ts
+```
