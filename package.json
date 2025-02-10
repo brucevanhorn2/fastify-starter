@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "server.ts",
   "scripts": {
+    "dev": "ts-node -r tsconfig-paths/register --project tsconfig.json src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -31,6 +32,7 @@
     "@types/node": "^22.13.1",
     "sequelize-cli": "^6.6.2",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3"
   }
 }
