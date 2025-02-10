@@ -1,5 +1,5 @@
 // Imports with zero tarrifs!
-import Fastify from "fastify";
+import Fastify, { FastifyPluginCallback } from "fastify";
 import cors from "@fastify/cors";
 
 import helloRoutes from "./routes/hello.route";
@@ -7,8 +7,8 @@ import areYouThereRoutes from "./routes/areYouThere.route";
 import userRoutes from "./routes/database.route";
 import { connectDB } from "./config/mongo.config";
 import fastifySequelize from "fastify-sequelize";
-import initClientModel from './models/sequelize/user.model';
-import { Sequelize } from "sequelize";
+import { initClientModel } from "./models/sequelize/client.model";
+import { Options } from "sequelize";
 
 // Global application configuration happens here
 const fastify = Fastify({ logger: true });
@@ -22,20 +22,16 @@ const HOST = process.env.BIND ?? "0.0.0.0";
 connectDB();
 
 // sequelize
-fastify.register(fastifySequelize, {
-  instance: "sequelize",
+const sequelizeOptions: Options = {
   dialect: "postgres",
   host: "localhost",
   database: "fastify-starter",
   username: "fastify-starter",
-  password: "P@ssw0rd",  // security check is going to fail.  fear not, this is just for initial development
-  logging: false, // Disable logging
-  pool: {
-    max: 10,
-    min: 1,
-    idle: 10000,
-  },
-});
+  password: "P@ssw0rd",
+  logging: false,
+  pool: { max: 10, min: 1, idle: 10000 },
+};
+fastify.register(fastifySequelize as FastifyPluginCallback<Options>, sequelizeOptions);
 
 // CORS access is set up here
 const allowedOrigins = ["http://localhost:3000"];
@@ -62,13 +58,18 @@ fastify.register(userRoutes);
 
 // After the show starts
 fastify.after(() => {
-  // Sequelize is now available, initialize models
-  const { sequelize } = fastify;
-  initClientModel(sequelize);
+  // Ensure Sequelize is available
+  if (!fastify.sequelize) {
+    throw new Error("Sequelize instance is missing!");
+  }
+
+  // Initialize models
+  initClientModel(fastify.sequelize);
 
   // Sync database (create tables if they don't exist)
-  sequelize.sync();
+  fastify.sequelize.sync();
 });
+
 
 // This next bit sets up the server.  You shouldn't need to maintain this much.
 const start = async () => {
