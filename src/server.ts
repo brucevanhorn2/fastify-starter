@@ -1,24 +1,30 @@
 import Fastify from "fastify";
-import { Sequelize } from "sequelize";
+import { Sequelize, Options, Dialect, SyncOptions } from "sequelize";
 import { initClientModel } from "./models/sequelize/client.model";
+
+const PORT = parseInt(process.env.PORT ?? "3000", 10);
+const HOST = process.env.BIND ?? "0.0.0.0";
 
 const fastify = Fastify();
 
-// ✅ Manually Instantiate Sequelize
-const sequelize = new Sequelize({
-  dialect: "postgres",
-  host: "localhost",
-  database: "fastify-starter",
-  username: "fastify-starter",
-  password: "P@ssw0rd",
-  logging: false,
-  pool: { max: 10, min: 1, idle: 10000 },
-});
+const sequelizeConfig: Options = {
+  dialect: "postgres" as Dialect,
+  host: process.env.DB_HOST ?? "localhost",
+  database: process.env.DB_NAME ?? "fastify-starter",
+  username: process.env.DB_USER ?? "fastify-starter",
+  password: process.env.DB_PASSWORD ?? "P@ssw0rd",
+  logging: process.env.DATABASE_LOGGING === "true",
+  pool: { 
+    max: process.env.DATABASE_POOL_MAX ? parseInt(process.env.DATABASE_POOL_MAX, 10) : 10, 
+    min: process.env.DATABASE_POOL_MIN ? parseInt(process.env.DATABASE_POOL_MIN, 10) : 1,
+    idle: process.env.DATABASE_POOL_IDLE ? parseInt(process.env.DATABASE_POOL_IDLE, 10) : 10000 
+  },
+};
 
-// ✅ Attach Sequelize to Fastify **before accessing it**
+const sequelize = new Sequelize(sequelizeConfig);
+
 fastify.decorate("sequelize", sequelize);
 
-// ✅ Extend FastifyInstance only AFTER decorating
 declare module "fastify" {
   interface FastifyInstance {
     sequelize: Sequelize;
@@ -26,20 +32,23 @@ declare module "fastify" {
 }
 
 fastify.after(async () => {
-  console.log("✅ Checking Fastify Sequelize instance:", fastify.sequelize);
-
-  if (!fastify.sequelize) {
-    throw new Error("❌ Sequelize instance is missing in Fastify!");
-  }
-
-  console.log("✅ Sequelize instance available, initializing models...");
   initClientModel(fastify.sequelize);
-
-  // ✅ Ensure database sync
-  await fastify.sequelize.sync();
+  const syncOptions: SyncOptions = {
+    force: process.env.DATABASE_SCHEMA_SYNC === "true",
+    alter: process.env.DATABASE_SCHEMA_ALTER === "true"
+  };
+  await fastify.sequelize.sync(syncOptions);
   console.log("✅ Database synchronized!");
 });
 
-fastify.listen({ port: 3000 }, () => {
-  console.log("🚀 Server running on http://localhost:3000");
-});
+const start = async () => {
+  try {
+    await fastify.listen({ port: PORT, host: HOST });
+    console.log(`🚀 Server running at http://${HOST}:${PORT}`);
+  } catch (err) {
+    fastify.log.error(err);
+    process.exit(1);
+  }
+};
+
+start();
