@@ -20,6 +20,13 @@ docker run -d `
   postgres:latest
 ```
 
+I'm also adding Kafka support.  It'd be cool if I could serve a Kafka stream via SSE.
+Once again, I need a docker command. https://docs.docker.com/guides/kafka/
+
+```bash
+docker run -d --name=kafka -p 9092:9092 apache/kafka
+```
+
 ## Running it
 ```bash
 npx ts-node src/server.ts
